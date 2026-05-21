@@ -21,3 +21,21 @@ jobs:
 
       - name: Run tests
         run: python3 -m pytest -v
+
+  build-container:
+    # Do not compile if tests fail
+    needs: test
+
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Apptainer (Singularity)
+        uses: eWaterCycle/setup-apptainer@v2
+        with:
+          apptainer-version: 1.3.6
+
+      - name: Build Container
+        run: apptainer build astralog.sif Singularity.def 
