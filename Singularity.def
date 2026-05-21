@@ -5,12 +5,18 @@ From: python:3.11-slim  # Base image
     export PYTHONUNBUFFERED=1         # Immediate output in cluster log
     export PYTHONDONTWRITEBYTECODE=1  # Do not generate unnecessary .pyc files
     export PYTHONPATH=/app            # Where to find Python modules
+    export PATH=/opt/venv/bin:$PATH   # Use Python of virtual environment
+    export VIRTUAL_ENV=/opt/venv
 
 %post
     # Update packages and install C compiler 
     apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
     && rm -rf /var/lib/apt/lists/*  # Clean apt cache to reduce container dimension
+
+    # Create isolated virtual environment
+    python -m venv /opt/venv             
+    . /opt/venv/bin/activate
 
     # Update pip to latest version
     pip install --no-cache-dir --upgrade pip  
