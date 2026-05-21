@@ -9,7 +9,7 @@ From: python:3.11-slim  # Base image
     export VIRTUAL_ENV=/opt/venv
 
 %post
-    # Update packages and install C compiler 
+    # Update packages and install C compiler (avoid unnecessary suggested packages)
     apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
     && rm -rf /var/lib/apt/lists/*  # Clean apt cache to reduce container dimension
