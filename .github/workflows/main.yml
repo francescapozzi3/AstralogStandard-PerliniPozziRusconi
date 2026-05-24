@@ -60,7 +60,7 @@ jobs:
           path: .
 
       - name: Copy containers and files to Galileo100
-        uses: appleboy/scp-action@v1.0.3
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.HPC_HOST }}
           username: ${{ secrets.HPC_USER }}
@@ -84,7 +84,7 @@ jobs:
 
             # Move input into the repository folder
             mv -f $USER_HOME/input $REPO_DIR/
-            
+
             # Enter the repository workspace folder
             cd $REPO_DIR
 
