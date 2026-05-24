@@ -1,109 +1,122 @@
+### Software Engineering for HPC - A.Y. 2025/2026
+
+**Authors**: Micaela Perlini, Francesca Marina Pozzi, Martina Rusconi.  
+**Track name**: Standard.
+
+<br>
+
 # AstraLog-HPC
-### **Standard Track Template | A.Y. 2025-2026**
 
-Welcome to the **AstraLog-HPC** Standard Track project. This repository provides a mock environment for the telemetry analysis software used in the *"Software Engineering for HPC"* course.
-
-> [!IMPORTANT]
-> Your objective is **not to implement the analysis logic**, but to engineer the **DevOps infrastructure** required to test, containerize, and execute this software on the **CINECA Galileo 100 cluster**.
-
----
+This repository provides a mock environment for the telemetry analysis software used in the *"Software Engineering for HPC"* course. More information can be retrieved [here](instructions/README.md).
 
 ## Repository Structure
 
+<!-- Use 'tree' command from terminal to get folder structure. -->
+
 ```text
 .
-├── src/                         # Engine and main entry point
+├── input
+│   ├── rules.json
+│   └── telemetry_cleaned.csv
+├── instructions
+│   └── README.md
+├── results
+│   ├── alarms.log
+│   └── valid_data.csv
+├── src
 │   └── astralog_mock.py
-├── tests/                       # Pytest test suite
+├── tests
 │   └── test_astralog.py
-├── input/
-│   └── rules.json               # Sample mission rules
-│   └── telemetry_cleaned.csv    # Sample telemetry data
-└── requirements.txt             # Python dependencies (pytest only)
+│
+├── README.md
+├── requirements.txt
+└── Singularity.def
 ```
 
----
+<br>
 
-## Local Usage
+## Roles
 
-### Installation
-Install the required testing framework:
-```bash
-pip install -r requirements.txt
+<br>
+
+## DevOps design choices
+
+<br>
+
+## AI Tools usage
+
+The first version of our Singularity container was simple:
+
+```text
+Bootstrap: docker
+From: python:3.11-slim
+    
+%post
+    pip install --no-cache-dir -r /app/requirements.txt 
+    
+%environment
+    export PYTHONPATH=/app
+
+%files
+    src /app/src
+    input /app/input
+    tests /opt/astralog/tests
+    requirements.txt /app/requirements.txt
+    
+%runscript
+    cd /app
+    exec python -m src.astralog_mock "$@
 ```
 
-### Running the Mock Engine
-The engine simulates the analysis process. Run it via the command line:
-```bash
-python3 -m src.astralog_mock \
-  --rules input/rules.json \
-  --input input/telemetry_cleaned.csv \
-  --output ./results
-```
+<br>
 
-### Running Unit Tests
-Validate the environment and the mock engine using `pytest`:
-```bash
-python3 -m pytest -v
-```
+We therefore asked **Claude AI** if such definition was enough for HPC usage. The answer read:
 
----
+> *For an HPC cluster, no, important things are missing:* 
+>- *No* `build-essential` *— if any package in* `requirements.txt` *compiles C/C++ code (e.g., numpy, pandas), the build fails.*
+>- *No* `venv` *— on HPC, system's Python environment can be managed/modified by the admin.*
+>- *Outdated* `pip` *— Older versions of* `pip` *may not resolve dependencies correctly.*
+>- *Missing* `PYTHONUNBUFFERED=1` *— On clusters, logs are written to files. Without this variable, the output may be lost or appear out of order.*
+>
+> *Minimal but robust version:*
+>
+> ```text
+>Bootstrap: docker
+>From: python:3.11-slim
+>
+>%environment
+>    export PYTHONUNBUFFERED=1
+>    export PYTHONDONTWRITEBYTECODE=1
+>    export PYTHONPATH=/app
+>
+>%post
+>    apt-get update && apt-get install -y -no-install-recommends 
+>        build-essential \
+>    && rm -rf /var/lib/apt/lists/*
+>    pip install --no-cache-dir --upgrade pip
+>    pip install --no-cache-dir -r /app/requirements.txt
+>
+>%files
+>    src /app/src
+>    input /app/input
+>    requirements.txt /app/requirements.txt
+>
+>%runscript
+>    cd /app
+>    exec python -m src.astralog_mock "$@"
+>```
 
-## DevOps Assignment (Your Tasks)
+We then decided to integrate this new version, in order to correctly package the application and its dependencies. Here, **reproducibility** is granted since:
+- The base image uses a precise version.
+- The latest version of `pip` is ensured.
+- Container dimension is small.
 
-Your final grade depends on the successful implementation of the following components:
+<br>
 
-### 1. CI/CD Pipeline
-Create a GitHub Actions workflow in `.github/workflows/main.yml`. The pipeline must:
-- [ ] **Trigger:** Run automatically on every `push`.
-- [ ] **Setup:** Install all necessary dependencies.
-- [ ] **Test:** Execute the test suite using `pytest`.
+However, although Claude mentioned using a virtual environment, the previous definition does not include it. Since CINECA system environment is managed by admins, we thought it could be useful to isolate everything in a safe (and reproducible) way by exploiting `venv`. 
 
-### 2. Containerization
-Write a `Singularity.def` file to:
-- [ ] Package the application and all required libraries.
-- [ ] Ensure full **reproducibility** of the computing environment.
 
-### 3. HPC Execution
-Create a `job.sh` script to:
-- [ ] Submit jobs via the **SLURM** scheduler.
-- [ ] Execute the containerized application.
-- [ ] Target the **Galileo 100 cluster** with correct configurations.
 
-### 4. Automation
-Extend your CI/CD pipeline to:
-- [ ] **Deploy** the container to the cluster environment.
-- [ ] **Automate** job submission on the HPC cluster directly from GitHub Actions.
 
----
 
-## Rules
 
-### Oral Examination
-During the oral exam, you must be prepared to:
-*   **Explain** every part of your pipeline and infrastructure.
-*   **Modify** configurations live if requested by the instructor.
-
-### Documentation
-Your final submission **must include** in the `README.md`:
-1. The names of all team members.
-2. The selected track (standard in your case).
-3. The role of each team member in the project, the detailed activities performed, and the effort spent in hours. 
-4.  A detailed section explaining your DevOps design choices. Present also the difficulties you have faced. For those you have overcome, explain how you did it; for the others, describe the attempts you made. 
-5.  A description of how AI tools were utilized in the process, if any.
-
----
-
-## Expected Outcomes
-By completing this project, you will master:
-*   **CI/CD workflows** tailored for High-Performance Computing.
-*   Scientific containerization using **Singularity**.
-*   Workload management with **SLURM**.
-*   End-to-end **DevOps automation** in a scientific context.
-
----
-
-## Notes
-*   This is a **mock environment**: no real telemetry analysis implementation is required.
-*   The focus is entirely on **infrastructure, portability, and automation**.
-*   Ensure your solution is **clean, reproducible, and well-documented**.
