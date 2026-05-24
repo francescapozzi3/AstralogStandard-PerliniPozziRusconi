@@ -1,0 +1,3 @@
+--- AstraLog-HPC | Mission Control Mock ---
+[*] Initializing engine with rules: /app/input/rules.json
+[FATAL ERROR] Rules file not found at /app/input/rules.json
