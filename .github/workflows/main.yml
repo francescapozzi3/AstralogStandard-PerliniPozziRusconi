@@ -39,3 +39,9 @@ jobs:
 
       - name: Build Container
         run: apptainer build astralog.sif Singularity.def 
+
+      - name: Upload SIF Container as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: astralog-container
+          path: astralog.sif
