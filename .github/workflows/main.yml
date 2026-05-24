@@ -93,4 +93,3 @@ jobs:
 
             # Submit the job to SLURM
             sbatch job.sh
-
