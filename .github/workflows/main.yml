@@ -9,10 +9,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
@@ -25,12 +25,11 @@ jobs:
   build-container:
     # Do not compile if tests fail
     needs: test
-
     runs-on: ubuntu-latest
-    steps:
 
+    steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Set up Apptainer (Singularity)
         uses: eWaterCycle/setup-apptainer@v2
@@ -45,3 +44,53 @@ jobs:
         with:
           name: astralog-container
           path: astralog.sif
+
+  deploy-and-run:
+    needs: build-container
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download SIF Container
+        uses: actions/download-artifact@v4
+        with:
+          name: astralog-container
+          path: .
+
+      - name: Copy containers and files to Galileo100
+        uses: appleboy/scp-action@v1.0.3
+        with:
+          host: ${{ secrets.HPC_HOST }}
+          username: ${{ secrets.HPC_USER }}
+          password: ${{ secrets.HPC_PASSWORD }}
+          source: "astralog.sif,job.sh,input/**"
+          target: "/g100/home/userexternal/${{ secrets.HPC_USER }}/"
+          overwrite: true
+
+      - name: Execute Remote SLURM Job Submission
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HPC_HOST }}
+          username: ${{ secrets.HPC_USER }}
+          password: ${{ secrets.HPC_PASSWORD }}
+          script: |
+            USER_HOME="/g100/home/userexternal/${{ secrets.HPC_USER }}"
+            REPO_DIR="$USER_HOME/AstralogStandard-PerliniPozziRusconi"
+            
+            # Move the job.sh into the repository folder
+            mv -f $USER_HOME/job.sh $REPO_DIR/
+
+            # Move input into the repository folder
+            mv -f $USER_HOME/input $REPO_DIR/
+            
+            # Enter the repository workspace folder
+            cd $REPO_DIR
+
+            # Clear out past log artifacts
+            rm -f logs/*
+
+            # Submit the job to SLURM
+            sbatch job.sh
+
