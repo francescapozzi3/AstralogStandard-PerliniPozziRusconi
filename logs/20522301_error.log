@@ -1,2 +1,0 @@
-ERROR: Unable to locate a modulefile for 'singularity/3.8.0--bind--openmpi--4.1.1'
-/var/spool/slurmd/job20522301/slurm_script: line 19: apptainer: command not found

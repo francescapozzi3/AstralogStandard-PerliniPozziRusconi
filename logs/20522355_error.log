@@ -1,7 +1,0 @@
-Loading singularity/3.8.0--bind--openmpi--4.1.1
-  ERROR: singularity/3.8.0--bind--openmpi--4.1.1 cannot be loaded due to missing
-    prereq.
-    HINT: the following module must be loaded first:
-    openmpi/4.1.1--gcc--10.2.0-cuda--11.1.0
-WARNING: skipping mount of /g100/home/userexternal/mperlini/results: stat /g100/home/userexternal/mperlini/results: no such file or directory
-FATAL:   container creation failed: mount /g100/home/userexternal/mperlini/input->/app/input error: while mounting /g100/home/userexternal/mperlini/input: mount source /g100/home/userexternal/mperlini/input doesn't exist

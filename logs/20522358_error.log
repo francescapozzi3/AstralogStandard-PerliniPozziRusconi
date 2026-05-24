@@ -1,9 +1,0 @@
- 
- 
-
-Please note that PATH and LD_LIBRARY_PATH variables inside containers have been modified.
-
-PATH=/g100_work/PROJECTS/spack/v0.16/install/0.16.2/linux-centos8-cascadelake/gcc-10.2.0/openmpi-4.1.1-gf3z2dt3dzrzt4kkafa3ghm7amunb4lz/bin:/g100/home/userexternal/mperlini/.local/bin:/g100/home/userexternal/mperlini/bin:/cineca/bin:/cineca/prod/opt/tools/cintools/1.0/none/bin:/cineca/prod/opt/environment/module/4.7.0/none/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/ddn/ime/bin:/opt/slurm/current/bin:/opt/slurm/current/sbin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-
-LD_LIBRARY_PATH=/g100_work/PROJECTS/spack/v0.16/install/0.16.2/linux-centos8-cascadelake/gcc-10.2.0/openmpi-4.1.1-gf3z2dt3dzrzt4kkafa3ghm7amunb4lz/lib:/g100_work/PROJECTS/spack/v0.17/prod/0.17.1/install/0.17/linux-centos8-cascadelake/gcc-10.2.0/zlib-1.2.11-3g2zcd6fz2nj37yjx6t4s65zk742iw63/lib:/lib64:/opt/slurm/current/lib:/usr/lib64
-
