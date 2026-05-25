@@ -92,7 +92,7 @@ jobs:
             mkdir -p logs
             rm -f logs/*
             sbatch job.sh
-        EOF
+          EOF
 
      
 #      - name: Copy containers and files to Galileo100
