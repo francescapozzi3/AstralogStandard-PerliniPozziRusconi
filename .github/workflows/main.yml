@@ -24,7 +24,7 @@ jobs:
 
   build-container:
     # Do not compile if tests fail
-    
+
     needs: test
     runs-on: ubuntu-latest
 
@@ -86,12 +86,14 @@ jobs:
             mv -f $USER_HOME/job.sh $REPO_DIR/
 
             # Move input into the repository folder
-            mv -f $USER_HOME/input $REPO_DIR/
+            # mv -f $USER_HOME/input $REPO_DIR/
+            cp -r $USER_HOME/input $REPO_DIR/
 
             # Enter the repository workspace folder
             cd $REPO_DIR
 
             # Clear out past log artifacts
+            mkdir -p logs
             rm -f logs/*
 
             # Submit the job to SLURM
