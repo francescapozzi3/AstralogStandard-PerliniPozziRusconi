@@ -76,7 +76,7 @@ jobs:
         with:
           host: ${{ secrets.HPC_HOST }}
           username: ${{ secrets.HPC_USER }}
-          # password: ${{ secrets.HPC_PASSWORD }} 
+          ## password: ${{ secrets.HPC_PASSWORD }} 
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             USER_HOME="/g100/home/userexternal/${{ secrets.HPC_USER }}"
