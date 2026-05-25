@@ -67,10 +67,13 @@ jobs:
           echo "${{ secrets.SSH_CERTIFICATE }}" > ~/.ssh/id_ecdsa-cert.pub
           chmod 600 ~/.ssh/id_ecdsa
           chmod 600 ~/.ssh/id_ecdsa-cert.pub
-          echo "Host login.g100.cineca.it
+          cat >> ~/.ssh/config << EOF
+          Host g100
+            HostName login.g100.cineca.it
+            User ${{ secrets.HPC_USER }}
             IdentityFile ~/.ssh/id_ecdsa
             CertificateFile ~/.ssh/id_ecdsa-cert.pub
-            StrictHostKeyChecking no" > ~/.ssh/config
+            StrictHostKeyChecking no
           EOF
           chmod 600 ~/.ssh/config
 
