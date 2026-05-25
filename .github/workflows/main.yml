@@ -24,7 +24,6 @@ jobs:
 
   build-container:
     # Do not compile if tests fail
-    
     needs: test
     runs-on: ubuntu-latest
 
@@ -65,7 +64,8 @@ jobs:
         with:
           host: ${{ secrets.HPC_HOST }}
           username: ${{ secrets.HPC_USER }}
-          password: ${{ secrets.HPC_PASSWORD }}
+          # password: ${{ secrets.HPC_PASSWORD }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "astralog.sif,job.sh,input/**"
           target: "/g100/home/userexternal/${{ secrets.HPC_USER }}/"
           overwrite: true
@@ -75,7 +75,8 @@ jobs:
         with:
           host: ${{ secrets.HPC_HOST }}
           username: ${{ secrets.HPC_USER }}
-          password: ${{ secrets.HPC_PASSWORD }}
+          # password: ${{ secrets.HPC_PASSWORD }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             USER_HOME="/g100/home/userexternal/${{ secrets.HPC_USER }}"
             REPO_DIR="$USER_HOME/AstralogStandard-PerliniPozziRusconi"
