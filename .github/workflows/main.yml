@@ -60,7 +60,6 @@ jobs:
           name: astralog-container
           path: .
 
-      #Add certificate
       - name: Setup SSH Certificate
         run: |
           mkdir -p ~/.ssh
@@ -72,43 +71,66 @@ jobs:
             IdentityFile ~/.ssh/id_ecdsa
             CertificateFile ~/.ssh/id_ecdsa-cert.pub
             StrictHostKeyChecking no" > ~/.ssh/config
+      
+      - name: Copy files to Galileo100
+        run: |
+          scp -i ~/.ssh/id_ecdsa \
+            astralog.sif job.sh \
+            ${{ secrets.HPC_USER }}@login.g100.cineca.it:/g100/home/userexternal/${{ secrets.HPC_USER }}/
+          scp -i ~/.ssh/id_ecdsa -r input \
+            ${{ secrets.HPC_USER }}@login.g100.cineca.it:/g100/home/userexternal/${{ secrets.HPC_USER }}/
 
-      - name: Copy containers and files to Galileo100
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.HPC_HOST }}
-          username: ${{ secrets.HPC_USER }}
-          # password: ${{ secrets.HPC_PASSWORD }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "astralog.sif,job.sh,input/**"
-          target: "/g100/home/userexternal/${{ secrets.HPC_USER }}/"
-          overwrite: true
-
-      - name: Execute Remote SLURM Job Submission
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.HPC_HOST }}
-          username: ${{ secrets.HPC_USER }}
-          # password: ${{ secrets.HPC_PASSWORD }} 
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          passphrase: ""
-          script: |
+      - name: Submit SLURM job
+        run: |
+          ssh -i ~/.ssh/id_ecdsa \
+            ${{ secrets.HPC_USER }}@login.g100.cineca.it << 'EOF'
             USER_HOME="/g100/home/userexternal/${{ secrets.HPC_USER }}"
             REPO_DIR="$USER_HOME/AstralogStandard-PerliniPozziRusconi"
+            mv -f $USER_HOME/job.sh $REPO_DIR/
+            cp -r $USER_HOME/input $REPO_DIR/
+            cd $REPO_DIR
+            mkdir -p logs
+            rm -f logs/*
+            sbatch job.sh
+        EOF
+
+     
+#      - name: Copy containers and files to Galileo100
+#        uses: appleboy/scp-action@v0.1.7
+#        with:
+#          host: ${{ secrets.HPC_HOST }}
+#          username: ${{ secrets.HPC_USER }}
+#          # password: ${{ secrets.HPC_PASSWORD }}
+#          key: ${{ secrets.SSH_PRIVATE_KEY }}
+#          source: "astralog.sif,job.sh,input/**"
+#          target: "/g100/home/userexternal/${{ secrets.HPC_USER }}/"
+#          overwrite: true
+
+#     - name: Execute Remote SLURM Job Submission
+#        uses: appleboy/ssh-action@v1.0.3
+#        with:
+#          host: ${{ secrets.HPC_HOST }}
+#          username: ${{ secrets.HPC_USER }}
+#          # password: ${{ secrets.HPC_PASSWORD }} 
+#          key: ${{ secrets.SSH_PRIVATE_KEY }}
+#          passphrase: ""
+#          script: |
+#            USER_HOME="/g100/home/userexternal/${{ secrets.HPC_USER }}"
+#            REPO_DIR="$USER_HOME/AstralogStandard-PerliniPozziRusconi"
             
             # Move the job.sh into the repository folder
-            mv -f $USER_HOME/job.sh $REPO_DIR/
+#            mv -f $USER_HOME/job.sh $REPO_DIR/
 
             # Move input into the repository folder
             # mv -f $USER_HOME/input $REPO_DIR/
-            cp -r $USER_HOME/input $REPO_DIR/
+#            cp -r $USER_HOME/input $REPO_DIR/
 
             # Enter the repository workspace folder
-            cd $REPO_DIR
+#            cd $REPO_DIR
 
             # Clear out past log artifacts
-            mkdir -p logs
-            rm -f logs/*
+#            mkdir -p logs
+#            rm -f logs/*
 
             # Submit the job to SLURM
-            sbatch job.sh
+#            sbatch job.sh
