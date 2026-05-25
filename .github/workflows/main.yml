@@ -60,6 +60,19 @@ jobs:
           name: astralog-container
           path: .
 
+      #Add certificate
+      - name: Setup SSH Certificate
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ecdsa
+          echo "${{ secrets.SSH_CERTIFICATE }}" > ~/.ssh/id_ecdsa-cert.pub
+          chmod 600 ~/.ssh/id_ecdsa
+          chmod 644 ~/.ssh/id_ecdsa-cert.pub
+          echo "Host login.g100.cineca.it
+            IdentityFile ~/.ssh/id_ecdsa
+            CertificateFile ~/.ssh/id_ecdsa-cert.pub
+            StrictHostKeyChecking no" > ~/.ssh/config
+
       - name: Copy containers and files to Galileo100
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -78,6 +91,7 @@ jobs:
           username: ${{ secrets.HPC_USER }}
           # password: ${{ secrets.HPC_PASSWORD }} 
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ""
           script: |
             USER_HOME="/g100/home/userexternal/${{ secrets.HPC_USER }}"
             REPO_DIR="$USER_HOME/AstralogStandard-PerliniPozziRusconi"
