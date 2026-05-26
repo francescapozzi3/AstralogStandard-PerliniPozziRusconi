@@ -95,6 +95,7 @@ jobs:
             -r input \
             ${{ secrets.HPC_USER }}@login.g100.cineca.it:/g100/home/userexternal/${{ secrets.HPC_USER }}/
 
+            
       - name: Submit SLURM job
         run: |
           ssh -i ~/.ssh/my_key \
