@@ -60,34 +60,24 @@ jobs:
           name: astralog-container
           path: .
 
-      - name: Setup SSH Certificate
+      - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ecdsa
-          echo "${{ secrets.SSH_CERTIFICATE }}" > ~/.ssh/id_ecdsa-cert.pub
-          chmod 600 ~/.ssh/id_ecdsa
-          chmod 600 ~/.ssh/id_ecdsa-cert.pub
-          cat >> ~/.ssh/config << EOF
-          Host g100
-            HostName login.g100.cineca.it
-            User ${{ secrets.HPC_USER }}
-            IdentityFile ~/.ssh/id_ecdsa
-            CertificateFile ~/.ssh/id_ecdsa-cert.pub
-            StrictHostKeyChecking no
-          EOF
-          chmod 600 ~/.ssh/config
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/github_g100
+          chmod 600 ~/.ssh/github_g100
+          ssh-keyscan login.g100.cineca.it >> ~/.ssh/known_hosts
 
       - name: Copy files to Galileo100
         run: |
-          scp -i ~/.ssh/id_ecdsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+          scp -i ~/.ssh/github_g100 \
             astralog.sif job.sh \
             ${{ secrets.HPC_USER }}@login.g100.cineca.it:/g100/home/userexternal/${{ secrets.HPC_USER }}/
-          scp -i ~/.ssh/id_ecdsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r input \
+          scp -i ~/.ssh/github_g100 -r input \
             ${{ secrets.HPC_USER }}@login.g100.cineca.it:/g100/home/userexternal/${{ secrets.HPC_USER }}/
 
       - name: Submit SLURM job
         run: |
-          ssh -i ~/.ssh/id_ecdsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+          ssh -i ~/.ssh/github_g100 \
             ${{ secrets.HPC_USER }}@login.g100.cineca.it << 'EOF'
             USER_HOME="/g100/home/userexternal/${{ secrets.HPC_USER }}"
             REPO_DIR="$USER_HOME/AstralogStandard-PerliniPozziRusconi"
