@@ -65,7 +65,6 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY_B64 }}" | base64 -d > ~/.ssh/my_key
           echo "${{ secrets.SSH_CERTIFICATE_B64 }}" | base64 -d > ~/.ssh/my_key-cert.pub          sed -i 's/\r//' ~/.ssh/my_key
-          sed -i 's/\r//' ~/.ssh/my_key-cert.pub
           chmod 600 ~/.ssh/my_key
           chmod 600 ~/.ssh/my_key-cert.pub
 
