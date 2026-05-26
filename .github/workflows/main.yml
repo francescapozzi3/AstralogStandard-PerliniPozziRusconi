@@ -64,6 +64,7 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/github_g100
+          sed -i 's/\r//' ~/.ssh/github_g100
           chmod 600 ~/.ssh/github_g100
           ssh-keyscan login.g100.cineca.it >> ~/.ssh/known_hosts
 
