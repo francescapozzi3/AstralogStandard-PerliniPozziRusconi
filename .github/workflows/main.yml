@@ -95,21 +95,25 @@ jobs:
             -r input \
             ${{ secrets.HPC_USER }}@login.g100.cineca.it:/g100/home/userexternal/${{ secrets.HPC_USER }}/
 
-            
+
       - name: Submit SLURM job
         run: |
           ssh -i ~/.ssh/my_key \
             -o CertificateFile=~/.ssh/my_key-cert.pub \
-            ${{ secrets.HPC_USER }}@login.g100.cineca.it << EOF
-            USER_HOME="/g100/home/userexternal/${{ secrets.HPC_USER }}"
-            REPO_DIR="$USER_HOME/AstralogStandard-PerliniPozziRusconi"
-            mv -f $USER_HOME/job.sh $REPO_DIR/
-            cp -r $USER_HOME/input $REPO_DIR/
-            cd $REPO_DIR
-            mkdir -p logs
-            rm -f logs/*
-            sbatch job.sh
-          EOF
+            ${{ secrets.HPC_USER }}@login.g100.cineca.it "
+              USER_HOME=/g100/home/userexternal/${{ secrets.HPC_USER }}
+              REPO_DIR=\$USER_HOME/AstralogStandard-PerliniPozziRusconi
+
+              mv -f \$USER_HOME/job.sh \$REPO_DIR/
+              cp -r \$USER_HOME/input \$REPO_DIR/
+
+              cd \$REPO_DIR
+
+              mkdir -p logs
+              rm -f logs/*
+
+              sbatch job.sh
+            "
 
 
      
