@@ -71,10 +71,7 @@ jobs:
 
           ssh-keyscan login.g100.cineca.it >> ~/.ssh/known_hosts
 
-      - name: Inspect certificate
-        run: |
-          ssh-keygen -Lf ~/.ssh/my_key-cert.pub
-
+    
       - name: Test SSH connection
         run: |
           ssh -vvv \
@@ -86,13 +83,11 @@ jobs:
       - name: Copy files to Galileo100
         run: |
           scp -i ~/.ssh/my_key \
-            -o CertificateFile=~/.ssh/my_key-cert.pub \
-            astralog.sif job.sh \
+          astralog.sif job.sh \
             ${{ secrets.HPC_USER }}@login.g100.cineca.it:/g100/home/userexternal/${{ secrets.HPC_USER }}/
 
-          scp -i ~/.ssh/my_key \
-            -o CertificateFile=~/.ssh/my_key-cert.pub \
-            -r input \
+          scp -i ~/.ssh/my_key \            
+          -r input \
             ${{ secrets.HPC_USER }}@login.g100.cineca.it:/g100/home/userexternal/${{ secrets.HPC_USER }}/
 
 
@@ -100,16 +95,20 @@ jobs:
         run: |
           ssh -i ~/.ssh/my_key \
             -o StrictHostKeyChecking=no \
-            ${{ secrets.HPC_USER }}@login.g100.cineca.it << 'EOF'
-            USER_HOME="/g100/home/userexternal/${{ secrets.HPC_USER }}"
-            REPO_DIR="$USER_HOME/AstralogStandard-PerliniPozziRusconi"
-            mv -f $USER_HOME/job.sh $REPO_DIR/
-            cp -r $USER_HOME/input $REPO_DIR/
-            cd $REPO_DIR
-            mkdir -p logs
-            rm -f logs/*
-            sbatch job.sh
-          EOF
+            ${{ secrets.HPC_USER }}@login.g100.cineca.it "
+              USER_HOME=/g100/home/userexternal/${{ secrets.HPC_USER }}
+              REPO_DIR=\$USER_HOME/AstralogStandard-PerliniPozziRusconi
+
+              mv -f \$USER_HOME/job.sh \$REPO_DIR/
+              cp -r \$USER_HOME/input \$REPO_DIR/
+
+              cd \$REPO_DIR
+
+              mkdir -p logs
+              rm -f logs/*
+
+              sbatch job.sh
+            "
 
 
      
