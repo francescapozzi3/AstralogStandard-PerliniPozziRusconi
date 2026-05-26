@@ -68,6 +68,15 @@ jobs:
           chmod 600 ~/.ssh/github_g100
           ssh-keyscan login.g100.cineca.it >> ~/.ssh/known_hosts
 
+      - name: Debug SSH key
+        run: |
+          echo "--- Fingerprint chiave locale ---"
+          ssh-keygen -l -f ~/.ssh/github_g100
+          echo "--- Primi caratteri del file ---"
+          head -1 ~/.ssh/github_g100
+          echo "--- Lunghezza file ---"
+          wc -c ~/.ssh/github_g100
+
       - name: Copy files to Galileo100
         run: |
           scp -i ~/.ssh/github_g100 -o StrictHostKeyChecking=no \
