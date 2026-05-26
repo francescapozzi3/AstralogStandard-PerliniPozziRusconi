@@ -4,6 +4,9 @@ on:
   push:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -73,7 +76,7 @@ jobs:
           echo "--- Inizio certificato ---"
           head -c 50 ~/.ssh/my_key-cert.pub
           echo "--- Fine certificato ---"
-          
+
 
       - name: Copy files to Galileo100
         run: |
