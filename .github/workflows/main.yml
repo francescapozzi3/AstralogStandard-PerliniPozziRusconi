@@ -99,7 +99,7 @@ jobs:
             sbatch job.sh
           EOF
 
-          
+
 #      - name: Copy containers and files to Galileo100
 #        uses: appleboy/scp-action@v0.1.7
 #        with:
@@ -123,19 +123,19 @@ jobs:
 #            USER_HOME="/g100/home/userexternal/${{ secrets.HPC_USER }}"
 #            REPO_DIR="$USER_HOME/AstralogStandard-PerliniPozziRusconi"
             
-            # Move the job.sh into the repository folder
+#            # Move the job.sh into the repository folder
 #            mv -f $USER_HOME/job.sh $REPO_DIR/
 
-            # Move input into the repository folder
-            # mv -f $USER_HOME/input $REPO_DIR/
+#            # Move input into the repository folder
+#            # mv -f $USER_HOME/input $REPO_DIR/
 #            cp -r $USER_HOME/input $REPO_DIR/
 
-            # Enter the repository workspace folder
+#            # Enter the repository workspace folder
 #            cd $REPO_DIR
 
-            # Clear out past log artifacts
+#           # Clear out past log artifacts
 #            mkdir -p logs
 #            rm -f logs/*
 
-            # Submit the job to SLURM
+#           # Submit the job to SLURM
 #            sbatch job.sh
