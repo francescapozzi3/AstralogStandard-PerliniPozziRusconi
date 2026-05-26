@@ -99,7 +99,6 @@ jobs:
             sbatch job.sh
           EOF
 
-
 #      - name: Copy containers and files to Galileo100
 #        uses: appleboy/scp-action@v0.1.7
 #        with:
