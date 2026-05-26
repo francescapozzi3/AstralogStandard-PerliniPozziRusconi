@@ -69,17 +69,18 @@ jobs:
           sed -i 's/\r//' ~/.ssh/my_key-cert.pub
           chmod 600 ~/.ssh/my_key
           chmod 600 ~/.ssh/my_key-cert.pub
+          echo "--- Inizio certificato ---"
+          head -c 50 ~/.ssh/my_key-cert.pub
+          echo "--- Fine certificato ---"
 
       - name: Copy files to Galileo100
         run: |
           scp -i ~/.ssh/my_key \
             -o StrictHostKeyChecking=no \
-            -o CertificateFile=~/.ssh/my_key-cert.pub \
             astralog.sif job.sh \
             ${{ secrets.HPC_USER }}@login.g100.cineca.it:/g100/home/userexternal/${{ secrets.HPC_USER }}/
           scp -i ~/.ssh/my_key \
             -o StrictHostKeyChecking=no \
-            -o CertificateFile=~/.ssh/my_key-cert.pub \
             -r input \
             ${{ secrets.HPC_USER }}@login.g100.cineca.it:/g100/home/userexternal/${{ secrets.HPC_USER }}/
 
@@ -87,7 +88,6 @@ jobs:
         run: |
           ssh -i ~/.ssh/my_key \
             -o StrictHostKeyChecking=no \
-            -o CertificateFile=~/.ssh/my_key-cert.pub \
             ${{ secrets.HPC_USER }}@login.g100.cineca.it << 'EOF'
             USER_HOME="/g100/home/userexternal/${{ secrets.HPC_USER }}"
             REPO_DIR="$USER_HOME/AstralogStandard-PerliniPozziRusconi"
@@ -99,7 +99,7 @@ jobs:
             sbatch job.sh
           EOF
 
-          
+
      
 #      - name: Copy containers and files to Galileo100
 #        uses: appleboy/scp-action@v0.1.7
