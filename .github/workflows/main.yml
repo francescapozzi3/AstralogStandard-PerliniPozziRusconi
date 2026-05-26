@@ -68,10 +68,6 @@ jobs:
           chmod 600 ~/.ssh/my_key
           chmod 644 ~/.ssh/my_key-cert.pub
 
-          ssh-keygen -y -f ~/.ssh/my_key >/dev/null
-          ssh-keygen -Lf ~/.ssh/my_key-cert.pub >/dev/null
-
-
       - name: Copy files to Galileo100
         run: |
           scp -i ~/.ssh/my_key \
