@@ -43,6 +43,23 @@ This repository provides a mock environment for the telemetry analysis software 
 
 <br>
 
+## Difficulties
+
+The main difficulty we had faced was **accessing Galileo100 HPC-cluster**. Each group member managed indeed to authenticate only after repeating [this procedure](https://docs.hpc.cineca.it/general/getting_started.html#get-str-card) multiple times.
+
+Similarly, we spent several hours to fix the workflow inability to authenticate too. The first attempt we made consisted of trying to enter by using the static password we set for our CINECA accounts. However, the error output by GitHub actions
+
+```text
+2026/05/25 07:32:54 error copy file to dest: ***, error message: ssh: handshake failed: ssh: unable to authenticate, attempted methods [none publickey], no supported methods remain
+drone-scp error: error copy file to dest: ***, error message: ssh: handshake failed: ssh: unable to authenticate, attempted methods [none publickey], no supported methods remain
+```
+
+suggested us that Galileo100 probably refuses this type of authentication. We then learnt that CINECA HPC clusters require instead to use the time-limited SSH certificate we generate every time via the smallstep CLI client, and there is no way to bypass such method on the workflow side. 
+
+For this reason, we modified `main.yml` file in order to accomodate the use of the private key and certificate, finally succeeding in verifying our credentials.
+
+<br>
+
 ## AI Tools usage
 
 The first version of our Singularity container was simple:
