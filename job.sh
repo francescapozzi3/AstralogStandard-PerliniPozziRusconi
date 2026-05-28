@@ -7,15 +7,15 @@
 #SBATCH --cpus-per-task=4            ## CPU cores per task
 #SBATCH --time=00:10:00              ## Maximum execution time
 #SBATCH --output=logs/%j_output.log  ## stdout → file (% j = job ID)
-#SBATCH --error=logs/%j_error.log    ## stderr → file separato
+#SBATCH --error=logs/%j_error.log    ## stderr → separated file
 
 module load profile/advanced
 module load openmpi/4.1.1--gcc--10.2.0-cuda--11.1.0
 module load singularity/3.8.0--bind--openmpi--4.1.1  ## Load Singularity on Galileo100
 
 SIF_PATH=$HOME/astralog.sif  ## .sif container path
-INPUT_DIR=$(pwd)/input        ## Input directory path
-OUTPUT_DIR=$(pwd)/results     ## Output directory path
+INPUT_DIR=$(pwd)/input       ## Input directory path
+OUTPUT_DIR=$(pwd)/results    ## Output directory path
 
 mkdir -p logs                ## Create logs directory if it doesn't exist
 mkdir -p $INPUT_DIR
