@@ -1,0 +1,6 @@
+--- AstraLog-HPC | Mission Control Mock ---
+[*] Initializing engine with rules: /app/input/rules.json
+[*] Starting semantic analysis on: /app/input/telemetry_cleaned.csv
+[*] Processing timestamps...
+[+] Analysis successful. Results saved to /app/results
+--- Process Finished Successfully ---

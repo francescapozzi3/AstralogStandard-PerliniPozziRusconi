@@ -9,10 +9,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
@@ -24,13 +24,13 @@ jobs:
 
   build-container:
     # Do not compile if tests fail
+
     needs: test
-
     runs-on: ubuntu-latest
-    steps:
 
+    steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Set up Apptainer (Singularity)
         uses: eWaterCycle/setup-apptainer@v2
@@ -39,3 +39,74 @@ jobs:
 
       - name: Build Container
         run: apptainer build astralog.sif Singularity.def 
+
+      - name: Upload SIF Container as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: astralog-container
+          path: astralog.sif
+
+  deploy-and-run:
+    needs: build-container
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download SIF Container
+        uses: actions/download-artifact@v4
+        with:
+          name: astralog-container
+          path: .
+
+      - name: Setup SSH
+        run: |
+          # Create .ssh directory and add private key and certificate
+          mkdir -p ~/.ssh
+          printf '%s' "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/my_key
+          printf '%s' "${{ secrets.SSH_CERTIFICATE }}" > ~/.ssh/my_key-cert.pub
+
+          # Set permissions for SSH key and certificate
+          #   -  Owner-read/write only for the private key
+          #   -  Owner-read/write and others-read for the certificate
+          chmod 600 ~/.ssh/my_key
+          chmod 644 ~/.ssh/my_key-cert.pub
+
+      - name: Copy files to Galileo100
+        run: |
+          # Copy the SIF container, job script, and input directory to the HPC cluster using scp with SSH certificate authentication
+          scp -i ~/.ssh/my_key \
+            -o CertificateFile=~/.ssh/my_key-cert.pub \
+            -o StrictHostKeyChecking=no \
+            astralog.sif job.sh \
+            ${{ secrets.HPC_USER }}@login.g100.cineca.it:/g100/home/userexternal/${{ secrets.HPC_USER }}/
+         
+          # Copy the input directory separately to ensure all files are included
+          scp -i ~/.ssh/my_key \
+            -o CertificateFile=~/.ssh/my_key-cert.pub \
+            -o StrictHostKeyChecking=no \
+            -r input \
+            ${{ secrets.HPC_USER }}@login.g100.cineca.it:/g100/home/userexternal/${{ secrets.HPC_USER }}/
+
+      - name: Submit SLURM job
+        run: |
+          # Connect to the HPC cluster using ssh with certificate authentication and submit the job using sbatch
+          ssh -i ~/.ssh/my_key \
+            -o CertificateFile=~/.ssh/my_key-cert.pub \
+            -o StrictHostKeyChecking=no \
+            ${{ secrets.HPC_USER }}@login.g100.cineca.it << EOF
+            USER_HOME="/g100/home/userexternal/${{ secrets.HPC_USER }}"
+            REPO_DIR="$USER_HOME/AstralogStandard-PerliniPozziRusconi"
+            mv -f $USER_HOME/job.sh $REPO_DIR/
+            cp -r $USER_HOME/input $REPO_DIR/
+            cd $REPO_DIR
+            mkdir -p logs
+
+            # Clean up old logs before submitting the job
+            rm -f logs/*
+
+            # Submit the job using sbatch
+            sbatch job.sh
+          EOF
+          
